@@ -11,3 +11,5 @@ coverage/
 
 *.log
 .DS_Store
+
+/src/generated/prisma
