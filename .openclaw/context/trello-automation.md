@@ -25,7 +25,7 @@
 6. If review passes:
    - remove `fix-required` label if present
    - card moves to `E2E Testing`
-7. `e2e-tester` runs TestSprite/E2E.
+7. `e2e-tester` runs Playwright/local E2E first. TestSprite can replace or augment this after project credentials and configuration are available.
 8. If E2E fails:
    - card moves to `Fix Required`
    - add failure notes and reproduction steps
@@ -76,6 +76,11 @@ Each task card should include:
 - Project-manager may create Trello cards immediately after final requirement breakdown without per-card approval.
 - Card execution starts automatically when a coordinator moves a card into `Code Inprogress`.
 - For the initial automation, detect `Code Inprogress` cards by polling Trello every 5 minutes.
+- Review starts automatically when a card enters `Code Review`.
+- E2E starts automatically when a card enters `E2E Testing`.
+- Fix implementation starts automatically when a card enters `Fix Required`.
+- `PR Ready` cards trigger a WhatsApp notification to the coordinator; no code action is taken from that watcher.
+- Playwright is the initial E2E engine. TestSprite is deferred until credentials, project config, and an execution script are added.
 - Use cron polling first. Trello webhooks can replace polling later if real-time execution becomes necessary.
 - Polling state must be stored outside the repository by default to avoid dirtying the worktree on every run.
 
@@ -113,6 +118,10 @@ Security:
 - MCP config example: `/home/ubuntu/.openclaw/mcp/trello/mcp-config.example.json`
 - Registered OpenClaw MCP server name: `trello`
 - Runtime polling state: `/home/ubuntu/.openclaw/state/g-focus-web/trello-processed.json`
+- Runtime review state: `/home/ubuntu/.openclaw/state/g-focus-web/trello-code-review-processed.json`
+- Runtime E2E state: `/home/ubuntu/.openclaw/state/g-focus-web/trello-e2e-testing-processed.json`
+- Runtime fix state: `/home/ubuntu/.openclaw/state/g-focus-web/trello-fix-required-processed.json`
+- Runtime PR notification state: `/home/ubuntu/.openclaw/state/g-focus-web/trello-pr-ready-notified.json`
 - State template committed in repo: `.openclaw/state/trello-processed.example.json`
 
 The wrapper sources the secret env file and runs the locally installed `mcp-server-trello` binary, so MCP client config does not need to contain the Trello token directly.
@@ -125,8 +134,13 @@ openclaw mcp set trello '{"command":"/home/ubuntu/.openclaw/mcp/trello/run-trell
 
 After registration, restart or refresh the agent session/runtime so the MCP server is exposed as a dynamic tool.
 
-## polling watcher
-Cron job name: `g-focus-web trello code-inprogress watcher`.
+## polling watchers
+Cron jobs:
+- `g-focus-web trello code-inprogress watcher`
+- `g-focus-web trello code-review watcher`
+- `g-focus-web trello e2e-testing watcher`
+- `g-focus-web trello fix-required watcher`
+- `g-focus-web trello pr-ready notifier`
 
 Schedule:
 
@@ -134,14 +148,42 @@ Schedule:
 */5 * * * *
 ```
 
-Watcher behavior:
+`Code Inprogress` watcher behavior:
 1. Load `/home/ubuntu/.openclaw/state/g-focus-web/trello-processed.json`, creating it from the template shape when missing.
 2. Read cards in Trello list `Code Inprogress`.
-3. Skip cards that already have an entry in `processedCards`.
-4. For each unprocessed card, record the card ID with timestamp and list name before starting work.
+3. Skip cards whose latest Trello `dateLastActivity` has already been processed for `Code Inprogress`.
+4. For each unprocessed card activity, record the card ID, `dateLastActivity`, timestamp, and list name before starting work.
 5. Start a `fullstack-developer` agent turn for that card.
 6. The developer must read the Trello card, repository context, and task docs before editing.
 7. After implementation and commit, move the card to `Code Review` and update the card comment with the handoff summary.
+
+`Code Review` watcher behavior:
+1. Read cards in Trello list `Code Review`.
+2. Skip cards whose latest Trello `dateLastActivity` has already been reviewed.
+3. Start a `reviewer` agent turn for the oldest unprocessed card.
+4. If review passes, comment with the review summary and move the card to `E2E Testing`.
+5. If review fails, comment with blocking findings, apply `fix-required`, and move the card to `Code Inprogress`.
+
+`E2E Testing` watcher behavior:
+1. Read cards in Trello list `E2E Testing`.
+2. Skip cards whose latest Trello `dateLastActivity` has already been tested.
+3. Start an `e2e-tester` agent turn for the oldest unprocessed card.
+4. Run Playwright/local browser preflight first. Use TestSprite only after it is configured.
+5. If E2E passes, comment with evidence and move the card to `PR Ready`.
+6. If E2E fails, comment with reproduction steps and move the card to `Fix Required`.
+
+`Fix Required` watcher behavior:
+1. Read cards in Trello list `Fix Required`.
+2. Skip cards whose latest Trello `dateLastActivity` has already been assigned for fixes.
+3. Start a `fullstack-developer` fix turn for the oldest unprocessed card.
+4. Implement only the E2E failure fix.
+5. Commit the fix, comment with a summary, and move the card to `Code Review`.
+
+`PR Ready` notifier behavior:
+1. Read cards in Trello list `PR Ready`.
+2. Skip cards already notified.
+3. Send a WhatsApp message to the coordinator that a card is PR-ready, including card name and URL.
+4. Do not write production code or move the card.
 
 State file shape:
 

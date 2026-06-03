@@ -14,7 +14,7 @@
 6. If review has required fixes, the card moves to `Code Inprogress` with a label indicating code changes are required.
 7. After fixes are committed, the card moves back to `Code Review`.
 8. If review passes, `reviewer` moves the card to `E2E Testing`.
-9. `e2e-tester` runs E2E/TestSprite checks after review approval.
+9. `e2e-tester` runs Playwright/local E2E checks after review approval. TestSprite can be added after credentials and config are available.
 10. If E2E passes, the card moves to `PR Ready`.
 11. Agent creates a PR automatically from the feature branch to `main` after E2E pass and sends the PR link/status to the coordinator.
 12. Merge request to `main` is created only after review and E2E pass.
@@ -52,10 +52,14 @@ Canonical list IDs are stored in `.openclaw/context/trello-automation.md`.
 - Poll Trello every 5 minutes for cards moved to `Code Inprogress`.
 - For each unprocessed `Code Inprogress` card, start `fullstack-developer` automatically and record the card in the runtime processed-card state file.
 - When `fullstack-developer` commits completed task work, move card to `Code Review`.
+- Poll Trello every 5 minutes for cards moved to `Code Review` and start `reviewer` automatically.
 - When `reviewer` requests blocking fixes, move card to `Code Inprogress` and apply a fix-required label.
 - When `reviewer` approves, move card to `E2E Testing`.
+- Poll Trello every 5 minutes for cards moved to `E2E Testing` and start `e2e-tester` automatically.
 - When `e2e-tester` fails a flow, move card to `Fix Required`.
 - When `e2e-tester` passes, move card to `PR Ready`.
+- Poll Trello every 5 minutes for cards moved to `Fix Required` and start `fullstack-developer` automatically for the focused fix.
+- Poll Trello every 5 minutes for cards moved to `PR Ready` and notify the coordinator in WhatsApp.
 - After E2E passes, create a PR automatically from the feature branch to `main` and send the PR link/status to the coordinator.
 - After merge, move card to `Done`.
 
@@ -72,4 +76,5 @@ Canonical list IDs are stored in `.openclaw/context/trello-automation.md`.
 
 ## external tools
 - Trello automation is approved for the configured `g-focus AI Team` board and list lifecycle.
-- TestSprite execution requires project configuration and credentials.
+- Playwright/local E2E is the initial test path.
+- TestSprite execution requires project configuration and credentials before it can replace or augment Playwright.

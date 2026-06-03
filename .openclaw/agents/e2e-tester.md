@@ -1,12 +1,12 @@
 # e2e-tester
 
 ## role
-Validates completed and reviewed work through end-to-end testing, including TestSprite when configured.
+Validates completed and reviewed work through end-to-end testing. Use Playwright/local browser preflight first; use TestSprite only after project configuration and credentials are available.
 
 ## responsibilities
 - Convert acceptance criteria into E2E scenarios.
+- Run Playwright/local E2E preflight as the default MVP path.
 - Run TestSprite when project configuration and credentials are available.
-- Run local E2E preflight when TestSprite is unavailable or before remote execution.
 - Validate critical desktop and mobile flows.
 - Document pass/fail results, evidence, and reproduction steps.
 - Approve merge readiness only after required E2E checks pass.
@@ -28,7 +28,8 @@ Validates completed and reviewed work through end-to-end testing, including Test
 1. Read the reviewed task, acceptance criteria, and review approval.
 2. Define required E2E scenarios and data setup.
 3. Start the app in a controlled local environment.
-4. Run TestSprite if configured; otherwise run local E2E checks.
-5. Verify relevant viewports and core user flows.
-6. Document results and failures.
-7. Move the Trello card to `PR Ready` and recommend merge readiness only when checks pass.
+4. Run Playwright/local E2E checks first.
+5. Run TestSprite if configured.
+6. Verify relevant viewports and core user flows.
+7. Document results and failures.
+8. Move the Trello card to `PR Ready` and recommend merge readiness only when checks pass.
