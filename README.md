@@ -48,4 +48,32 @@ The default local URL is `http://localhost:3000`.
 - `src/app/(auth)` contains authentication routes.
 - `src/app/(app)` contains authenticated product routes.
 
-Authentication, database schema, migrations, and production deployment automation are intentionally deferred to later approved tasks.
+Authentication and production deployment automation are intentionally deferred to later approved tasks.
+
+## Database
+
+This app uses Prisma with Neon Postgres. Keep the real connection string in a local environment file and never commit it:
+
+```bash
+cp .env.example .env.local
+```
+
+Generate the Prisma client after installing dependencies or after changing the schema:
+
+```bash
+npm run prisma:generate
+```
+
+Validate the schema:
+
+```bash
+npm run prisma:validate
+```
+
+Create and apply a local development migration when `DATABASE_URL` points at a disposable development database:
+
+```bash
+npm run prisma:migrate:dev -- --name initial_schema
+```
+
+The generated Prisma client is written to `src/generated/prisma` and intentionally ignored by git. The committed source of truth is `prisma/schema.prisma`.
