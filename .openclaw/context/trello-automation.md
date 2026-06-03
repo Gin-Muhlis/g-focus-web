@@ -79,6 +79,7 @@ Each task card should include:
 - Review starts automatically when a card enters `Code Review`.
 - E2E starts automatically when a card enters `E2E Testing`.
 - Fix implementation starts automatically when a card enters `Fix Required`.
+- `e2e-tester` pushes the feature branch and creates the PR after E2E pass when GitHub tooling/credentials are configured.
 - `PR Ready` cards trigger a WhatsApp notification to the coordinator; no code action is taken from that watcher.
 - Playwright is the initial E2E engine. TestSprite is deferred until credentials, project config, and an execution script are added.
 - Use cron polling first. Trello webhooks can replace polling later if real-time execution becomes necessary.
@@ -169,7 +170,7 @@ Schedule:
 2. Skip cards whose latest Trello `dateLastActivity` has already been tested.
 3. Start an `e2e-tester` agent turn for the oldest unprocessed card.
 4. Run Playwright/local browser preflight first. Use TestSprite only after it is configured.
-5. If E2E passes, comment with evidence and move the card to `PR Ready`.
+5. If E2E passes, comment with evidence, push the feature branch, create a PR to `main` when GitHub tooling/credentials are configured, and move the card to `PR Ready`.
 6. If E2E fails, comment with reproduction steps and move the card to `Fix Required`.
 
 `Fix Required` watcher behavior:
@@ -182,7 +183,7 @@ Schedule:
 `PR Ready` notifier behavior:
 1. Read cards in Trello list `PR Ready`.
 2. Skip cards already notified.
-3. Send a WhatsApp message to the coordinator that a card is PR-ready, including card name and URL.
+3. Send a WhatsApp message to the coordinator that a card is PR-ready, including card name, Trello URL, and PR URL/status.
 4. Do not write production code or move the card.
 
 State file shape:

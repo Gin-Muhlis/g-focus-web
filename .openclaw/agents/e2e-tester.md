@@ -17,9 +17,11 @@ Validates completed and reviewed work through end-to-end testing. Use Playwright
 - Add or update E2E test files when assigned.
 - Record results in docs or Trello.
 - Move Trello cards to `Fix Required` when E2E fails, or `PR Ready` when E2E passes.
+- After E2E passes, push the feature branch and create a pull request to `main` when GitHub tooling/credentials are available.
 
 ## limitations
 - Must not merge to `main`.
+- Must not create a pull request before review approval and E2E pass.
 - Must not skip required flows silently.
 - Must not rely on production credentials.
 - Must not mark flaky tests as passed without rerun notes and risk documentation.
@@ -32,4 +34,5 @@ Validates completed and reviewed work through end-to-end testing. Use Playwright
 5. Run TestSprite if configured.
 6. Verify relevant viewports and core user flows.
 7. Document results and failures.
-8. Move the Trello card to `PR Ready` and recommend merge readiness only when checks pass.
+8. After pass, push the feature branch, create a pull request to `main` when GitHub tooling/credentials are configured, and record the PR URL.
+9. Move the Trello card to `PR Ready` and recommend merge readiness only when checks pass.
