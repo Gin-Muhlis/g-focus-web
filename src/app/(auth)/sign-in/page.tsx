@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export const metadata: Metadata = {
   title: "Sign in",
@@ -7,21 +16,37 @@ export const metadata: Metadata = {
 
 export default function SignInPage() {
   return (
-    <section className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-slate-950">Sign in</h1>
-        <p className="text-sm leading-6 text-slate-600">
+    <Card>
+      <CardHeader>
+        <CardTitle>Sign in</CardTitle>
+        <CardDescription>
           Authentication is reserved for FEAT-004. This route is ready for the
           upcoming session flow.
-        </p>
-      </div>
+        </CardDescription>
+      </CardHeader>
 
-      <Link
-        href="/"
-        className="inline-flex rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
-      >
-        Back home
-      </Link>
-    </section>
+      <CardContent className="space-y-5">
+        <div className="space-y-3">
+          <label
+            className="text-sm font-medium text-foreground"
+            htmlFor="email"
+          >
+            Email
+          </label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            disabled
+          />
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button disabled>Continue</Button>
+          <Button asChild variant="secondary">
+            <Link href="/">Back home</Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
