@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   ArrowRight,
   CalendarClock,
@@ -70,10 +71,14 @@ export default function AppHomePage() {
               50-minute focus block will keep the launch plan on track.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button>
-                Start next focus block <ArrowRight className="size-4" />
+              <Button asChild>
+                <Link href="/app/pomodoro">
+                  Start next focus block <ArrowRight className="size-4" />
+                </Link>
               </Button>
-              <Button variant="secondary">Review today</Button>
+              <Button asChild variant="secondary">
+                <Link href="/app/today">Review today</Link>
+              </Button>
             </div>
           </div>
         </Card>
@@ -144,8 +149,8 @@ export default function AppHomePage() {
               </p>
               <h2 className="mt-2 text-xl font-bold">12 open tasks</h2>
             </div>
-            <Button variant="ghost" size="sm">
-              View all
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/app/today">View all</Link>
             </Button>
           </div>
           <PriorityChart />
@@ -172,8 +177,8 @@ export default function AppHomePage() {
               </p>
               <h2 className="mt-2 text-xl font-bold">What matters next</h2>
             </div>
-            <Button variant="secondary" size="sm">
-              Plan day
+            <Button asChild variant="secondary" size="sm">
+              <Link href="/app/today">Plan day</Link>
             </Button>
           </div>
           <div className="mt-5 divide-y divide-border">
@@ -182,8 +187,9 @@ export default function AppHomePage() {
                 key={task.title}
                 className="group flex items-center gap-3 py-3.5"
               >
-                <button
-                  aria-label={`Mark ${task.title} complete`}
+                <Link
+                  href="/app/today"
+                  aria-label={`Open ${task.title} in Today`}
                   className="grid size-6 shrink-0 place-items-center rounded-full border border-border-strong text-cyan transition hover:bg-cyan/10"
                 >
                   {task.done ? (
@@ -191,7 +197,7 @@ export default function AppHomePage() {
                   ) : (
                     <Circle className="size-3" />
                   )}
-                </button>
+                </Link>
                 <div className="min-w-0 flex-1">
                   <p
                     className={`truncate text-sm font-semibold ${task.done ? "text-muted line-through" : ""}`}
@@ -234,8 +240,8 @@ export default function AppHomePage() {
               <span className="text-3xl font-bold">1h 40m</span>
               <span className="pb-1 text-xs text-muted">deep work today</span>
             </div>
-            <Button variant="secondary" className="mt-5 w-full">
-              Open focus room
+            <Button asChild variant="secondary" className="mt-5 w-full">
+              <Link href="/app/pomodoro">Open focus room</Link>
             </Button>
           </Card>
           <Card>

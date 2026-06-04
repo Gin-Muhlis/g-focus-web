@@ -17,8 +17,18 @@ import {
   Search,
   Settings2,
   Sparkles,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 const navGroups = [
@@ -37,8 +47,20 @@ const navGroups = [
   },
 ];
 
+const routeLabels = [
+  { href: "/app/today", label: "Today" },
+  { href: "/app/calendar", label: "Calendar" },
+  { href: "/app/roadmap", label: "Roadmap" },
+  { href: "/app/pomodoro", label: "Pomodoro" },
+  { href: "/app/settings", label: "Settings" },
+];
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const routeLabel =
+    routeLabels.find((route) => pathname.startsWith(route.href))?.label ??
+    "Dashboard";
+  const mobileNavItems = navGroups.flatMap((group) => group.items);
 
   return (
     <div className="min-h-svh bg-background text-foreground lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
@@ -127,18 +149,96 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="min-w-0 lg:col-start-2">
         <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b border-border bg-background/75 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            aria-label="Open navigation"
-          >
-            <Menu className="size-5" />
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                aria-label="Open navigation"
+              >
+                <Menu className="size-5" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="inset-y-0 left-0 top-0 flex h-svh w-[min(22rem,calc(100%-2rem))] max-w-none translate-x-0 translate-y-0 flex-col rounded-none rounded-r-xl p-4">
+              <DialogHeader className="flex-row items-start justify-between gap-4 px-2 py-2 text-left">
+                <div>
+                  <DialogTitle className="flex items-center gap-3">
+                    <span className="grid size-9 place-items-center rounded-md bg-linear-to-br from-accent to-accent-secondary">
+                      <Sparkles className="size-4" />
+                    </span>
+                    g-focus
+                  </DialogTitle>
+                  <DialogDescription className="mt-2">
+                    Growth Studio · Personal workspace
+                  </DialogDescription>
+                </div>
+                <DialogClose asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Close navigation"
+                  >
+                    <X className="size-5" />
+                  </Button>
+                </DialogClose>
+              </DialogHeader>
+              <DialogClose asChild>
+                <Button asChild className="mt-3 w-full justify-start">
+                  <Link href="/app/today">
+                    <Plus className="size-4" /> Quick add
+                  </Link>
+                </Button>
+              </DialogClose>
+              <nav className="mt-6 flex-1 space-y-6" aria-label="Mobile menu">
+                {navGroups.map((group) => (
+                  <div key={group.label}>
+                    <p className="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                      {group.label}
+                    </p>
+                    <div className="space-y-1">
+                      {group.items.map((item) => {
+                        const active =
+                          item.href === "/app"
+                            ? pathname === "/app"
+                            : pathname.startsWith(item.href);
+                        return (
+                          <DialogClose asChild key={item.label}>
+                            <Link
+                              href={item.href}
+                              aria-current={active ? "page" : undefined}
+                              className={cn(
+                                "flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium text-muted transition hover:bg-white/5 hover:text-foreground",
+                                active && "bg-accent/12 text-foreground",
+                              )}
+                            >
+                              <item.icon className="size-[18px]" />
+                              {item.label}
+                            </Link>
+                          </DialogClose>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </nav>
+              <DialogClose asChild>
+                <Link
+                  href="/app/settings"
+                  className={cn(
+                    "flex min-h-11 items-center gap-3 rounded-md border-t border-border px-3 pt-4 text-sm font-medium text-muted",
+                    pathname.startsWith("/app/settings") && "text-foreground",
+                  )}
+                >
+                  <Settings2 className="size-[18px]" /> Workspace settings
+                </Link>
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
           <div className="hidden text-sm text-muted sm:block">
             <span className="text-muted-foreground">Workspace</span>
             <span className="mx-2">/</span>
-            <span className="font-semibold text-foreground">Dashboard</span>
+            <span className="font-semibold text-foreground">{routeLabel}</span>
           </div>
           <button className="ml-auto hidden min-h-10 w-full max-w-xs items-center gap-2 rounded-md border border-border bg-surface-muted/70 px-3 text-sm text-muted transition hover:border-border-strong md:flex">
             <Search className="size-4" /> Search anything{" "}
@@ -146,9 +246,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Command className="size-3" />K
             </kbd>
           </button>
-          <Button size="sm">
-            <Plus className="size-4" />{" "}
-            <span className="hidden sm:inline">New task</span>
+          <Button asChild size="sm">
+            <Link href="/app/today">
+              <Plus className="size-4" />{" "}
+              <span className="hidden sm:inline">New task</span>
+            </Link>
           </Button>
           <Button variant="ghost" size="icon" aria-label="Notifications">
             <Bell className="size-5" />
@@ -161,19 +263,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           className="fixed inset-x-3 bottom-3 z-40 flex items-center justify-around rounded-xl border border-border bg-[#111522]/92 p-2 shadow-2xl backdrop-blur-xl lg:hidden"
           aria-label="Mobile navigation"
         >
-          {navGroups
-            .flatMap((group) => group.items)
-            .slice(0, 4)
-            .map((item) => (
+          {mobileNavItems.map((item) => {
+            const active =
+              item.href === "/app"
+                ? pathname === "/app"
+                : pathname.startsWith(item.href);
+            return (
               <Link
                 key={item.label}
                 href={item.href}
-                className="flex min-w-14 flex-col items-center gap-1 rounded-md px-2 py-1.5 text-[10px] text-muted"
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex min-w-12 flex-col items-center gap-1 rounded-md px-1 py-1.5 text-[10px] text-muted transition",
+                  active && "bg-accent/12 text-foreground",
+                )}
               >
                 <item.icon className="size-5" />
                 {item.label}
               </Link>
-            ))}
+            );
+          })}
         </nav>
       </div>
     </div>
