@@ -1,52 +1,118 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  ArrowLeft,
+  CheckCircle2,
+  Clock3,
+  Sparkles,
+  Target,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export const metadata: Metadata = {
-  title: "Sign in",
-};
+export const metadata: Metadata = { title: "Sign in" };
 
 export default function SignInPage() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>
-          Authentication is reserved for FEAT-004. This route is ready for the
-          upcoming session flow.
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-5">
-        <div className="space-y-3">
-          <label
-            className="text-sm font-medium text-foreground"
-            htmlFor="email"
+    <div className="grid min-h-svh lg:grid-cols-[minmax(0,.85fr)_minmax(520px,1.15fr)]">
+      <section className="flex items-center justify-center px-5 py-12 sm:px-10 lg:px-16">
+        <div className="w-full max-w-md">
+          <Link
+            href="/"
+            className="mb-12 inline-flex items-center gap-2 text-sm text-muted transition hover:text-foreground"
           >
-            Email
-          </label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            disabled
-          />
+            <ArrowLeft className="size-4" /> Back to g-focus
+          </Link>
+          <span className="inline-flex size-11 items-center justify-center rounded-lg bg-linear-to-br from-accent to-accent-secondary shadow-[0_0_32px_rgba(87,157,255,.25)]">
+            <Sparkles className="size-5" />
+          </span>
+          <h1 className="mt-7 text-3xl font-bold tracking-tight sm:text-4xl">
+            Welcome back.
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-muted">
+            Return to a clear plan, your current momentum, and the next task
+            worth doing.
+          </p>
+          <form className="mt-9 space-y-5">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold" htmlFor="email">
+                Email address
+              </label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between gap-4">
+                <label className="text-sm font-semibold" htmlFor="password">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  className="text-xs font-semibold text-blue-300 hover:text-blue-200"
+                >
+                  Forgot password?
+                </button>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                autoComplete="current-password"
+              />
+            </div>
+            <Button className="w-full" size="lg">
+              Sign in to your workspace
+            </Button>
+          </form>
+          <p className="mt-6 text-center text-xs leading-5 text-muted-foreground">
+            By continuing, you agree to keep your work intentional.
+          </p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Button disabled>Continue</Button>
-          <Button asChild variant="secondary">
-            <Link href="/">Back home</Link>
-          </Button>
+      </section>
+      <section className="relative hidden overflow-hidden border-l border-border bg-[#0d1019] p-12 lg:flex lg:flex-col lg:justify-center">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_30%,rgba(87,157,255,.2),transparent_35%),radial-gradient(circle_at_70%_80%,rgba(155,114,255,.16),transparent_38%)]" />
+        <div className="relative mx-auto w-full max-w-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">
+            A calmer command center
+          </p>
+          <h2 className="mt-4 text-4xl font-bold leading-tight">
+            Know what matters. Then make meaningful progress.
+          </h2>
+          <div className="ambient-float mt-10 rounded-xl border border-border-strong bg-surface/90 p-6 shadow-[0_28px_100px_rgba(0,0,0,.35)] backdrop-blur-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted">Thursday&apos;s momentum</p>
+                <p className="mt-2 text-2xl font-bold">
+                  A focused day is taking shape.
+                </p>
+              </div>
+              <span className="grid size-12 place-items-center rounded-full bg-cyan/12 text-cyan">
+                <Target className="size-6" />
+              </span>
+            </div>
+            <div className="mt-7 grid grid-cols-2 gap-3">
+              <div className="rounded-lg bg-white/4 p-4">
+                <Clock3 className="size-4 text-blue-300" />
+                <p className="mt-4 text-2xl font-bold">1h 40m</p>
+                <p className="mt-1 text-xs text-muted">Focus time</p>
+              </div>
+              <div className="rounded-lg bg-white/4 p-4">
+                <CheckCircle2 className="size-4 text-cyan" />
+                <p className="mt-4 text-2xl font-bold">8 / 12</p>
+                <p className="mt-1 text-xs text-muted">Tasks complete</p>
+              </div>
+            </div>
+          </div>
+          <p className="mt-8 text-sm leading-6 text-muted">
+            “The right amount of structure to keep the day moving without
+            turning planning into another job.”
+          </p>
         </div>
-      </CardContent>
-    </Card>
+      </section>
+    </div>
   );
 }
