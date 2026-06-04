@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { logoutAction } from "@/lib/auth-actions";
 
 const navItems = [
   { href: "/app", label: "Dashboard" },
@@ -9,7 +11,13 @@ const navItems = [
   { href: "/app", label: "Focus" },
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  user,
+}: {
+  children: React.ReactNode;
+  user: { name: string; email: string };
+}) {
   return (
     <div className="min-h-svh bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
@@ -31,7 +39,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             ))}
           </nav>
-          <Badge variant="violet">MVP</Badge>
+          <div className="flex items-center gap-3">
+            <div className="hidden text-right sm:block">
+              <p className="text-xs font-semibold text-foreground">
+                {user.name}
+              </p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            </div>
+            <Badge variant="violet">MVP</Badge>
+            <form action={logoutAction}>
+              <Button size="sm" type="submit" variant="ghost">
+                Log out
+              </Button>
+            </form>
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:py-8">

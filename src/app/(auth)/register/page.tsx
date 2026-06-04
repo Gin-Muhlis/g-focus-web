@@ -9,18 +9,20 @@ import {
 } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Sign in",
+  title: "Create account",
 };
 
-export default function SignInPage() {
+export default function RegisterPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>Continue to your focused workspace.</CardDescription>
+        <CardTitle>Create account</CardTitle>
+        <CardDescription>
+          Start with a personal workspace for your daily focus.
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <AuthForm mode="login" />
+        <AuthForm mode="register" />
       </CardContent>
     </Card>
   );
