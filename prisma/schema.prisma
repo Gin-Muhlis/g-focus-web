@@ -76,6 +76,15 @@ model Session {
   @@index([expiresAt])
 }
 
+model AuthRateLimit {
+  key         String   @id
+  attempts    Int
+  windowStart DateTime
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
+
 model Workspace {
   id        String   @id @default(cuid())
   name      String

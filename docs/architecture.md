@@ -124,6 +124,10 @@ Likely required:
 - Guard the authenticated App Router route group in its server layout.
 - Create a default workspace and owner membership transactionally during
   registration.
+- Throttle login and registration by hashed IP and normalized account
+  identifiers using database-backed fixed windows before bcrypt work.
+- Enforce bcrypt's 72-byte UTF-8 password ceiling during registration and
+  login validation.
 
 ## important architecture decisions
 - All user-owned data should be scoped by workspace.

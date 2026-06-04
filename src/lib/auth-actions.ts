@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { getRequestIp, isRateLimited } from "@/lib/auth-rate-limit";
 import {
   createSession,
   deleteCurrentSession,
@@ -21,14 +22,24 @@ const emailSchema = z
   .email("Enter a valid email address.")
   .transform((email) => email.toLowerCase());
 
+const bcryptPasswordSchema = z
+  .string()
+  .refine(
+    (password) => Buffer.byteLength(password, "utf8") <= 72,
+    "Password must be no more than 72 UTF-8 bytes.",
+  );
+
 const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters.")
-  .max(72, "Password must be no more than 72 characters.");
+  .pipe(bcryptPasswordSchema);
 
 const loginSchema = z.object({
   email: emailSchema,
-  password: z.string().min(1, "Enter your password."),
+  password: z
+    .string()
+    .min(1, "Enter your password.")
+    .pipe(bcryptPasswordSchema),
 });
 
 const registerSchema = z.object({
@@ -48,6 +59,33 @@ function validationState(error: z.ZodError): AuthActionState {
   };
 }
 
+async function authRequestIsRateLimited(
+  action: "login" | "register",
+  email: string,
+) {
+  const ip = await getRequestIp();
+  const windowMs = action === "login" ? 15 * 60 * 1000 : 60 * 60 * 1000;
+  const ipLimit = action === "login" ? 20 : 5;
+  const accountLimit = action === "login" ? 8 : 3;
+
+  const [ipLimited, accountLimited] = await Promise.all([
+    isRateLimited({
+      scope: `${action}:ip`,
+      identifier: ip,
+      limit: ipLimit,
+      windowMs,
+    }),
+    isRateLimited({
+      scope: `${action}:account`,
+      identifier: email,
+      limit: accountLimit,
+      windowMs,
+    }),
+  ]);
+
+  return ipLimited || accountLimited;
+}
+
 export async function loginAction(
   _previousState: AuthActionState,
   formData: FormData,
@@ -59,6 +97,10 @@ export async function loginAction(
 
   if (!result.success) {
     return validationState(result.error);
+  }
+
+  if (await authRequestIsRateLimited("login", result.data.email)) {
+    return { message: "Too many attempts. Wait a while and try again." };
   }
 
   const user = await prisma.user.findUnique({
@@ -90,6 +132,10 @@ export async function registerAction(
     return validationState(result.error);
   }
 
+  if (await authRequestIsRateLimited("register", result.data.email)) {
+    return { message: "Too many attempts. Wait a while and try again." };
+  }
+
   const existingUser = await prisma.user.findUnique({
     where: { email: result.data.email },
     select: { id: true },
@@ -104,8 +150,10 @@ export async function registerAction(
 
   const passwordHash = await hashPassword(result.data.password);
 
+  let user: { id: string };
+
   try {
-    const user = await prisma.$transaction(async (transaction) => {
+    user = await prisma.$transaction(async (transaction) => {
       const createdUser = await transaction.user.create({
         data: {
           name: result.data.name,
@@ -129,12 +177,19 @@ export async function registerAction(
 
       return createdUser;
     });
-
-    await createSession(user.id);
   } catch {
     return {
       message:
         "We could not create your account. Check your details and try again.",
+    };
+  }
+
+  try {
+    await createSession(user.id);
+  } catch {
+    return {
+      message:
+        "Your account was created, but we could not sign you in. Sign in to continue.",
     };
   }
 
