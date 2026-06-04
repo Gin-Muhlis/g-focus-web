@@ -20,7 +20,6 @@ The Neon connection string must be provided through environment variables and mu
 
 Required:
 - `DATABASE_URL`
-- `AUTH_SECRET`
 
 Likely required:
 - `NEXT_PUBLIC_APP_URL`
@@ -116,10 +115,19 @@ Likely required:
 
 ## auth approach
 - Use custom auth for MVP.
-- Hash passwords with a modern password hashing library such as argon2 or bcrypt.
-- Store session tokens as hashes in the database.
-- Use secure, httpOnly cookies for sessions.
-- Create a default workspace for each user during registration.
+- Use server actions for registration, login, and logout mutations.
+- Validate auth input with Zod and hash passwords with bcryptjs.
+- Generate opaque random session tokens, store only their SHA-256 hashes in the
+  database, and expire sessions after 30 days.
+- Store the opaque token in a `sameSite=lax`, httpOnly cookie that is secure in
+  production.
+- Guard the authenticated App Router route group in its server layout.
+- Create a default workspace and owner membership transactionally during
+  registration.
+- Throttle login and registration by hashed IP and normalized account
+  identifiers using database-backed fixed windows before bcrypt work.
+- Enforce bcrypt's 72-byte UTF-8 password ceiling during registration and
+  login validation.
 
 ## important architecture decisions
 - All user-owned data should be scoped by workspace.
