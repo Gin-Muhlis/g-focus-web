@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import {
+  useActionState,
+  useState,
+  type ChangeEvent,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import {
   loginAction,
   registerAction,
@@ -11,11 +17,59 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const initialState: AuthActionState = {};
+type AuthFormValues = {
+  name: string;
+  email: string;
+  password: string;
+};
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
+  const [values, setValues] = useState<AuthFormValues>({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [stateVersion, setStateVersion] = useState(0);
+
+  return (
+    <AuthFormFields
+      key={`${mode}-${stateVersion}`}
+      mode={mode}
+      values={values}
+      setValues={setValues}
+      resetActionState={() => setStateVersion((version) => version + 1)}
+    />
+  );
+}
+
+function AuthFormFields({
+  mode,
+  values,
+  setValues,
+  resetActionState,
+}: {
+  mode: "login" | "register";
+  values: AuthFormValues;
+  setValues: Dispatch<SetStateAction<AuthFormValues>>;
+  resetActionState: () => void;
+}) {
   const action = mode === "login" ? loginAction : registerAction;
   const [state, formAction, pending] = useActionState(action, initialState);
   const isRegister = mode === "register";
+  const hasActionFeedback = Boolean(state.message || state.errors);
+
+  function updateField(field: keyof AuthFormValues) {
+    return (event: ChangeEvent<HTMLInputElement>) => {
+      setValues((currentValues) => ({
+        ...currentValues,
+        [field]: event.target.value,
+      }));
+
+      if (hasActionFeedback) {
+        resetActionState();
+      }
+    };
+  }
 
   return (
     <form action={formAction} className="space-y-5">
@@ -25,6 +79,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           label="Name"
           type="text"
           autoComplete="name"
+          value={values.name}
+          onChange={updateField("name")}
           error={state.errors?.name?.[0]}
         />
       ) : null}
@@ -34,6 +90,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         label="Email"
         type="email"
         autoComplete="email"
+        value={values.email}
+        onChange={updateField("email")}
         error={state.errors?.email?.[0]}
       />
       <Field
@@ -41,6 +99,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         label="Password"
         type="password"
         autoComplete={isRegister ? "new-password" : "current-password"}
+        value={values.password}
+        onChange={updateField("password")}
         error={state.errors?.password?.[0]}
       />
 
