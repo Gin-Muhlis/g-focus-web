@@ -10,6 +10,7 @@ import {
   verifyPassword,
 } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { setActiveWorkspaceCookie } from "@/lib/workspaces";
 
 export type AuthActionState = {
   message?: string;
@@ -150,7 +151,7 @@ export async function registerAction(
 
   const passwordHash = await hashPassword(result.data.password);
 
-  let user: { id: string };
+  let user: { id: string; workspaceId: string };
 
   try {
     user = await prisma.$transaction(async (transaction) => {
@@ -162,7 +163,7 @@ export async function registerAction(
         },
       });
 
-      await transaction.workspace.create({
+      const workspace = await transaction.workspace.create({
         data: {
           name: `${createdUser.name}'s Workspace`,
           ownerId: createdUser.id,
@@ -173,9 +174,10 @@ export async function registerAction(
             },
           },
         },
+        select: { id: true },
       });
 
-      return createdUser;
+      return { id: createdUser.id, workspaceId: workspace.id };
     });
   } catch {
     return {
@@ -186,6 +188,7 @@ export async function registerAction(
 
   try {
     await createSession(user.id);
+    await setActiveWorkspaceCookie(user.workspaceId);
   } catch {
     return {
       message:
