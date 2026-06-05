@@ -75,7 +75,7 @@ Each task card should include:
 - Workspace invite MVP uses existing-user lookup by email without sending real email.
 - Project-manager may create Trello cards immediately after final requirement breakdown without per-card approval.
 - Card execution starts automatically when a coordinator moves a card into `Code Inprogress`.
-- For the initial automation, detect `Code Inprogress` cards by polling Trello every 5 minutes.
+- For the initial automation, detect `Code Inprogress` cards by polling Trello every 20 minutes.
 - Review starts automatically when a card enters `Code Review`.
 - E2E starts automatically when a card enters `E2E Testing`.
 - Fix implementation starts automatically when a card enters `Fix Required`.
@@ -146,7 +146,7 @@ Cron jobs:
 Schedule:
 
 ```cron
-*/5 * * * *
+*/20 * * * *
 ```
 
 `Code Inprogress` watcher behavior:
@@ -155,7 +155,7 @@ Schedule:
 3. Skip cards whose latest Trello `dateLastActivity` has already been processed for `Code Inprogress`.
 4. For each unprocessed card activity, record the card ID, `dateLastActivity`, timestamp, and list name before starting work.
 5. Start a `fullstack-developer` agent turn for that card.
-6. The developer must read the Trello card, repository context, and task docs before editing.
+6. The developer must read the Trello card, repository context, and task docs, then fetch and fast-forward `main` from `origin/main` before creating the feature branch from `main`.
 7. After implementation and commit, move the card to `Code Review` and update the card comment with the handoff summary.
 
 `Code Review` watcher behavior:

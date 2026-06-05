@@ -7,7 +7,7 @@
 - Use Trello for execution tracking once board access is available.
 - Use the existing Trello lists: `Backlog`, `Code Inprogress`, `Code Review`, `E2E Testing`, `Fix Required`, `PR Ready`, `Done`.
 - Treat `.openclaw/agents/project-manager.md`, `.openclaw/agents/fullstack-developer.md`, `.openclaw/agents/reviewer.md`, and `.openclaw/agents/e2e-tester.md` as the canonical agent definitions.
-- Detect cards moved to `Code Inprogress` through the configured 5-minute Trello polling watcher.
+- Detect cards moved to `Code Inprogress` through the configured 20-minute Trello polling watcher.
 
 ## scope control
 - Do not implement features before they have an approved task and acceptance criteria.

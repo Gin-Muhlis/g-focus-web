@@ -7,7 +7,7 @@
 
 ## delivery flow
 1. `project-manager` creates or approves a task.
-2. `fullstack-developer` creates a branch and implements the task.
+2. `fullstack-developer` fetches `origin`, switches to `main`, fast-forwards from `origin/main`, verifies local `main` matches `origin/main`, then creates the task feature branch from that synced `main`.
 3. Developer runs local verification and commits changes.
 4. After commit, the Trello card moves automatically to `Code Review`.
 5. `reviewer` reviews the diff and requests fixes or approves.
@@ -49,17 +49,17 @@ Canonical list IDs are stored in `.openclaw/context/trello-automation.md`.
 - URL: `https://trello.com/b/cJc964Qc/g-focus-ai-team`
 
 ## trello automation
-- Poll Trello every 5 minutes for cards moved to `Code Inprogress`.
+- Poll Trello every 20 minutes for cards moved to `Code Inprogress`.
 - For each unprocessed `Code Inprogress` card, start `fullstack-developer` automatically and record the card in the runtime processed-card state file.
 - When `fullstack-developer` commits completed task work, move card to `Code Review`.
-- Poll Trello every 5 minutes for cards moved to `Code Review` and start `reviewer` automatically.
+- Poll Trello every 20 minutes for cards moved to `Code Review` and start `reviewer` automatically.
 - When `reviewer` requests blocking fixes, move card to `Code Inprogress` and apply a fix-required label.
 - When `reviewer` approves, move card to `E2E Testing`.
-- Poll Trello every 5 minutes for cards moved to `E2E Testing` and start `e2e-tester` automatically.
+- Poll Trello every 20 minutes for cards moved to `E2E Testing` and start `e2e-tester` automatically.
 - When `e2e-tester` fails a flow, move card to `Fix Required`.
 - When `e2e-tester` passes, push the feature branch, create a PR to `main` when GitHub tooling/credentials are configured, then move card to `PR Ready`.
-- Poll Trello every 5 minutes for cards moved to `Fix Required` and start `fullstack-developer` automatically for the focused fix.
-- Poll Trello every 5 minutes for cards moved to `PR Ready` and notify the coordinator in WhatsApp with the PR URL/status.
+- Poll Trello every 20 minutes for cards moved to `Fix Required` and start `fullstack-developer` automatically for the focused fix.
+- Poll Trello every 20 minutes for cards moved to `PR Ready` and notify the coordinator in WhatsApp with the PR URL/status.
 - PR creation requires GitHub tooling/credentials such as `gh` or a GitHub token; if unavailable, push the branch when possible and report the missing PR capability.
 - After merge, move card to `Done`.
 

@@ -27,11 +27,12 @@ Implements approved Next.js fullstack tasks for `g-focus-web`.
 
 ## workflow
 1. Read the task file and relevant context docs.
-2. Inspect existing code before choosing an implementation approach.
-3. Confirm any unclear product, schema, or dependency decision.
-4. Implement the smallest complete solution that satisfies acceptance criteria.
-5. Add or update tests where appropriate.
-6. Run lint, typecheck, test, and build when available.
-7. Commit completed work.
-8. Summarize implementation and hand off to `reviewer`.
-9. Move the Trello card to `Code Review` when Trello access is available.
+2. Before implementation, fetch and sync `main` with `origin/main`, then create the task branch from that synced `main`.
+3. Inspect existing code before choosing an implementation approach.
+4. Confirm any unclear product, schema, or dependency decision.
+5. Implement the smallest complete solution that satisfies acceptance criteria.
+6. Add or update tests where appropriate.
+7. Run lint, typecheck, test, and build when available.
+8. Commit completed work.
+9. Summarize implementation and hand off to `reviewer`.
+10. Move the Trello card to `Code Review` when Trello access is available.
