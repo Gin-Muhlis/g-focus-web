@@ -1,23 +1,35 @@
-import { WorkspaceView } from "@/components/dashboard/workspace-view";
-export default function SettingsPage() {
+import { redirect } from "next/navigation";
+import { WorkspaceSettings } from "@/components/workspaces/workspace-settings";
+import { getCurrentUser } from "@/lib/auth";
+import {
+  getUserWorkspaceContext,
+  getWorkspaceInvites,
+  getWorkspaceMembers,
+} from "@/lib/workspaces";
+
+export default async function SettingsPage() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const context = await getUserWorkspaceContext(user.id);
+
+  if (!context) {
+    redirect("/sign-in");
+  }
+
+  const [members, invites] = await Promise.all([
+    getWorkspaceMembers(user.id, context.activeWorkspace.id),
+    getWorkspaceInvites(user.id, context.activeWorkspace.id),
+  ]);
+
+  if (!members || !invites) {
+    redirect("/app");
+  }
+
   return (
-    <WorkspaceView
-      eyebrow="Workspace settings"
-      title="Shape a workspace that stays useful."
-      description="Keep your planning rhythm, focus preferences, and workspace context aligned."
-      items={[
-        {
-          title: "Growth Studio",
-          detail: "Personal workspace",
-          meta: "Active",
-        },
-        {
-          title: "Daily focus goal",
-          detail: "Three focused sessions",
-          meta: "150 min",
-        },
-        { title: "Week starts", detail: "Planning preference", meta: "Monday" },
-      ]}
-    />
+    <WorkspaceSettings context={context} members={members} invites={invites} />
   );
 }

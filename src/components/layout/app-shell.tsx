@@ -31,6 +31,8 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/auth-actions";
+import { switchWorkspaceAction } from "@/lib/workspace-actions";
+import type { WorkspaceContext } from "@/lib/workspaces";
 
 const navGroups = [
   {
@@ -59,11 +61,14 @@ const routeLabels = [
 export function AppShell({
   children,
   user,
+  workspaceContext,
 }: {
   children: React.ReactNode;
   user: { name: string; email: string };
+  workspaceContext: WorkspaceContext;
 }) {
   const pathname = usePathname();
+  const activeWorkspace = workspaceContext.activeWorkspace;
   const routeLabel =
     routeLabels.find((route) => pathname.startsWith(route.href))?.label ??
     "Dashboard";
@@ -79,25 +84,44 @@ export function AppShell({
           <span className="font-semibold tracking-tight">g-focus</span>
         </Link>
 
-        <button className="mt-5 flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-3 text-left transition hover:border-border-strong">
-          <span className="grid size-8 place-items-center rounded-md bg-accent/15 text-sm font-bold text-blue-200">
-            {user.name
-              .split(" ")
-              .map((part) => part[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-semibold">
-              Growth Studio
+        <form
+          action={switchWorkspaceAction}
+          className="mt-5 rounded-lg border border-border bg-surface px-3 py-3 transition hover:border-border-strong"
+        >
+          <label className="sr-only" htmlFor="workspaceId">
+            Active workspace
+          </label>
+          <div className="flex items-center gap-3">
+            <span className="grid size-8 place-items-center rounded-md bg-accent/15 text-sm font-bold text-blue-200">
+              {activeWorkspace.name
+                .split(" ")
+                .map((part) => part[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()}
             </span>
-            <span className="block text-xs text-muted-foreground">
-              Personal workspace
+            <span className="min-w-0 flex-1">
+              <select
+                id="workspaceId"
+                name="workspaceId"
+                defaultValue={activeWorkspace.id}
+                className="w-full appearance-none bg-transparent text-sm font-semibold text-foreground outline-none"
+                onChange={(event) => event.currentTarget.form?.requestSubmit()}
+              >
+                {workspaceContext.workspaces.map((workspace) => (
+                  <option key={workspace.id} value={workspace.id}>
+                    {workspace.name}
+                  </option>
+                ))}
+              </select>
+              <span className="mt-1 block text-xs text-muted-foreground">
+                {activeWorkspace.role} · {activeWorkspace.memberCount} member
+                {activeWorkspace.memberCount === 1 ? "" : "s"}
+              </span>
             </span>
-          </span>
-          <ChevronDown className="size-4 text-muted" />
-        </button>
+            <ChevronDown className="size-4 text-muted" />
+          </div>
+        </form>
 
         <Button className="mt-4 w-full justify-start">
           <Plus className="size-4" /> Quick add
@@ -189,7 +213,7 @@ export function AppShell({
                     g-focus
                   </DialogTitle>
                   <DialogDescription className="mt-2">
-                    Growth Studio · Personal workspace
+                    {activeWorkspace.name} · {activeWorkspace.role}
                   </DialogDescription>
                 </div>
                 <DialogClose asChild>
@@ -255,7 +279,9 @@ export function AppShell({
             </DialogContent>
           </Dialog>
           <div className="hidden text-sm text-muted sm:block">
-            <span className="text-muted-foreground">Workspace</span>
+            <span className="text-muted-foreground">
+              {activeWorkspace.name}
+            </span>
             <span className="mx-2">/</span>
             <span className="font-semibold text-foreground">{routeLabel}</span>
           </div>
