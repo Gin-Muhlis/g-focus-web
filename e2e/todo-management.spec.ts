@@ -29,11 +29,14 @@ test.describe("workspace todo management", () => {
     await page.getByRole("button", { name: "Create todo" }).click();
 
     const todo = page.getByRole("article").filter({ hasText: originalTitle });
+    const todoMeta = todo.locator('[data-testid="todo-metadata"]');
     await expect(todo).toBeVisible();
-    await expect(todo.getByText("Urgent")).toBeVisible();
-    await expect(todo.getByText("launch")).toBeVisible();
-    await expect(todo.getByText("writing")).toBeVisible();
-    await expect(todo.getByText("Due Jun 9")).toBeVisible();
+    await expect(todo.locator('[data-testid="todo-priority"]')).toHaveText(
+      "Urgent",
+    );
+    await expect(todoMeta.getByText("launch")).toBeVisible();
+    await expect(todoMeta.getByText("writing")).toBeVisible();
+    await expect(todoMeta.getByText("Due Jun 9")).toBeVisible();
 
     await todo.getByText("Edit todo").click();
     await todo.getByLabel("Title").fill(editedTitle);
@@ -46,25 +49,38 @@ test.describe("workspace todo management", () => {
     const editedTodo = page
       .getByRole("article")
       .filter({ hasText: editedTitle });
+    const editedMeta = editedTodo.locator('[data-testid="todo-metadata"]');
     await expect(editedTodo).toBeVisible();
-    await expect(editedTodo.getByText("High")).toBeVisible();
-    await expect(editedTodo.getByText("In progress")).toBeVisible();
-    await expect(editedTodo.getByText("review")).toBeVisible();
-    await expect(editedTodo.getByText("launch")).toBeVisible();
+    await expect(
+      editedTodo.locator('[data-testid="todo-priority"]'),
+    ).toHaveText("High");
+    await expect(editedTodo.locator('[data-testid="todo-status"]')).toHaveText(
+      "In progress",
+    );
+    await expect(editedMeta.getByText("review")).toBeVisible();
+    await expect(editedMeta.getByText("launch")).toBeVisible();
 
     await editedTodo
       .getByRole("button", { name: "Mark todo complete" })
       .click();
-    await expect(editedTodo.getByText("Done")).toBeVisible();
-    await expect(editedTodo.getByText("High")).toBeVisible();
-    await expect(editedTodo.getByText("review")).toBeVisible();
+    await expect(editedTodo.locator('[data-testid="todo-status"]')).toHaveText(
+      "Done",
+    );
+    await expect(
+      editedTodo.locator('[data-testid="todo-priority"]'),
+    ).toHaveText("High");
+    await expect(editedMeta.getByText("review")).toBeVisible();
 
     await editedTodo
       .getByRole("button", { name: "Mark todo incomplete" })
       .click();
-    await expect(editedTodo.getByText("Todo")).toBeVisible();
-    await expect(editedTodo.getByText("High")).toBeVisible();
-    await expect(editedTodo.getByText("review")).toBeVisible();
+    await expect(editedTodo.locator('[data-testid="todo-status"]')).toHaveText(
+      "Todo",
+    );
+    await expect(
+      editedTodo.locator('[data-testid="todo-priority"]'),
+    ).toHaveText("High");
+    await expect(editedMeta.getByText("review")).toBeVisible();
 
     await editedTodo
       .getByRole("button", { name: `Delete ${editedTitle}` })

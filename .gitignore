@@ -9,6 +9,7 @@ dist/
 coverage/
 playwright-report/
 test-results/
+.openclaw/e2e/
 *.tsbuildinfo
 
 *.log

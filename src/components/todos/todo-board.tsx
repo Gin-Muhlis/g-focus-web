@@ -213,10 +213,16 @@ function TodoItem({
             >
               {todo.title}
             </h2>
-            <Badge variant={priorityVariants[todo.priority]}>
+            <Badge
+              data-testid="todo-priority"
+              variant={priorityVariants[todo.priority]}
+            >
               {priorityLabels[todo.priority]}
             </Badge>
-            <Badge variant={done ? "success" : "blue"}>
+            <Badge
+              data-testid="todo-status"
+              variant={done ? "success" : "blue"}
+            >
               {statusLabels[todo.status]}
             </Badge>
           </div>
@@ -225,7 +231,10 @@ function TodoItem({
               {todo.description}
             </p>
           ) : null}
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <div
+            data-testid="todo-metadata"
+            className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"
+          >
             <span>Created by {todo.creatorName}</span>
             {todo.dueDate ? (
               <span className="inline-flex items-center gap-1">
