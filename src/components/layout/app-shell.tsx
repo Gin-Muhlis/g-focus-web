@@ -34,7 +34,14 @@ import { logoutAction } from "@/lib/auth-actions";
 import { switchWorkspaceAction } from "@/lib/workspace-actions";
 import type { WorkspaceContext } from "@/lib/workspaces";
 
-const navGroups = [
+type NavItem = {
+  href: string;
+  label: string;
+  mobileLabel?: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Plan",
     items: [
@@ -47,6 +54,17 @@ const navGroups = [
   {
     label: "Focus",
     items: [{ href: "/app/pomodoro", label: "Pomodoro", icon: Focus }],
+  },
+  {
+    label: "Workspace",
+    items: [
+      {
+        href: "/app/settings",
+        label: "Workspace settings",
+        mobileLabel: "Settings",
+        icon: Settings2,
+      },
+    ],
   },
 ];
 
@@ -123,8 +141,10 @@ export function AppShell({
           </div>
         </form>
 
-        <Button className="mt-4 w-full justify-start">
-          <Plus className="size-4" /> Quick add
+        <Button asChild className="mt-4 w-full justify-start">
+          <Link href="/app/today">
+            <Plus className="size-4" /> Quick add
+          </Link>
         </Button>
         <nav className="mt-7 flex-1 space-y-7" aria-label="Primary navigation">
           {navGroups.map((group) => (
@@ -265,17 +285,6 @@ export function AppShell({
                   </div>
                 ))}
               </nav>
-              <DialogClose asChild>
-                <Link
-                  href="/app/settings"
-                  className={cn(
-                    "flex min-h-11 items-center gap-3 rounded-md border-t border-border px-3 pt-4 text-sm font-medium text-muted",
-                    pathname.startsWith("/app/settings") && "text-foreground",
-                  )}
-                >
-                  <Settings2 className="size-[18px]" /> Workspace settings
-                </Link>
-              </DialogClose>
             </DialogContent>
           </Dialog>
           <div className="hidden text-sm text-muted sm:block">
@@ -329,7 +338,7 @@ export function AppShell({
                 )}
               >
                 <item.icon className="size-5" />
-                {item.label}
+                {item.mobileLabel ?? item.label}
               </Link>
             );
           })}
