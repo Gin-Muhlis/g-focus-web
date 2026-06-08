@@ -29,10 +29,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/auth-actions";
 
-const navGroups = [
+type NavItem = {
+  href: string;
+  label: string;
+  mobileLabel?: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Plan",
     items: [
@@ -45,6 +53,17 @@ const navGroups = [
   {
     label: "Focus",
     items: [{ href: "/app/pomodoro", label: "Pomodoro", icon: Focus }],
+  },
+  {
+    label: "Workspace",
+    items: [
+      {
+        href: "/app/settings",
+        label: "Workspace settings",
+        mobileLabel: "Settings",
+        icon: Settings2,
+      },
+    ],
   },
 ];
 
@@ -59,15 +78,28 @@ const routeLabels = [
 export function AppShell({
   children,
   user,
+  workspace,
 }: {
   children: React.ReactNode;
   user: { name: string; email: string };
+  workspace: {
+    id: string;
+    name: string;
+    role: "owner" | "member";
+    memberCount: number;
+  } | null;
 }) {
   const pathname = usePathname();
   const routeLabel =
     routeLabels.find((route) => pathname.startsWith(route.href))?.label ??
     "Dashboard";
   const mobileNavItems = navGroups.flatMap((group) => group.items);
+  const workspaceName = workspace?.name ?? "No workspace";
+  const workspaceMeta = workspace
+    ? `${workspace.role === "owner" ? "Owner" : "Member"} · ${workspace.memberCount} member${
+        workspace.memberCount === 1 ? "" : "s"
+      }`
+    : "Workspace setup needed";
 
   return (
     <div className="min-h-svh bg-background text-foreground lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
@@ -79,9 +111,13 @@ export function AppShell({
           <span className="font-semibold tracking-tight">g-focus</span>
         </Link>
 
-        <button className="mt-5 flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-3 text-left transition hover:border-border-strong">
+        <Link
+          href="/app/settings"
+          className="mt-5 flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-3 text-left transition hover:border-border-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          aria-label={`Open workspace settings for ${workspaceName}`}
+        >
           <span className="grid size-8 place-items-center rounded-md bg-accent/15 text-sm font-bold text-blue-200">
-            {user.name
+            {workspaceName
               .split(" ")
               .map((part) => part[0])
               .join("")
@@ -90,17 +126,19 @@ export function AppShell({
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold">
-              Growth Studio
+              {workspaceName}
             </span>
             <span className="block text-xs text-muted-foreground">
-              Personal workspace
+              {workspaceMeta}
             </span>
           </span>
           <ChevronDown className="size-4 text-muted" />
-        </button>
+        </Link>
 
-        <Button className="mt-4 w-full justify-start">
-          <Plus className="size-4" /> Quick add
+        <Button asChild className="mt-4 w-full justify-start">
+          <Link href="/app/today">
+            <Plus className="size-4" /> Quick add
+          </Link>
         </Button>
         <nav className="mt-7 flex-1 space-y-7" aria-label="Primary navigation">
           {navGroups.map((group) => (
@@ -189,7 +227,7 @@ export function AppShell({
                     g-focus
                   </DialogTitle>
                   <DialogDescription className="mt-2">
-                    Growth Studio · Personal workspace
+                    {workspaceName} · {workspaceMeta}
                   </DialogDescription>
                 </div>
                 <DialogClose asChild>
@@ -241,17 +279,6 @@ export function AppShell({
                   </div>
                 ))}
               </nav>
-              <DialogClose asChild>
-                <Link
-                  href="/app/settings"
-                  className={cn(
-                    "flex min-h-11 items-center gap-3 rounded-md border-t border-border px-3 pt-4 text-sm font-medium text-muted",
-                    pathname.startsWith("/app/settings") && "text-foreground",
-                  )}
-                >
-                  <Settings2 className="size-[18px]" /> Workspace settings
-                </Link>
-              </DialogClose>
             </DialogContent>
           </Dialog>
           <div className="hidden text-sm text-muted sm:block">
@@ -281,7 +308,24 @@ export function AppShell({
           </form>
         </header>
         <main className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-          {children}
+          {workspace ? (
+            children
+          ) : (
+            <section className="pb-24 lg:pb-0">
+              <EmptyState
+                className="min-h-72 content-center border-solid"
+                title="Create a workspace to start planning"
+                description="Your account is ready, but there is no workspace connected to it yet. Workspace setup keeps todos, plans, roadmap items, and focus history scoped correctly."
+                action={
+                  <Button asChild>
+                    <Link href="/app/settings">
+                      Open workspace settings <Settings2 className="size-4" />
+                    </Link>
+                  </Button>
+                }
+              />
+            </section>
+          )}
         </main>
         <nav
           className="fixed inset-x-3 bottom-3 z-40 flex items-center justify-around rounded-xl border border-border bg-[#111522]/92 p-2 shadow-2xl backdrop-blur-xl lg:hidden"
@@ -303,7 +347,7 @@ export function AppShell({
                 )}
               >
                 <item.icon className="size-5" />
-                {item.label}
+                {item.mobileLabel ?? item.label}
               </Link>
             );
           })}
