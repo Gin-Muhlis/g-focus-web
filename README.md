@@ -37,6 +37,7 @@ The default local URL is `http://localhost:3000`.
 
 - `npm run dev` starts the local Next.js development server.
 - `npm run lint` runs ESLint.
+- `npm run e2e:migrate` applies Prisma migrations to the disposable E2E database from `E2E_DATABASE_URL`.
 - `npm run e2e` runs the Playwright browser smoke tests.
 - `npm run typecheck` generates the Prisma client, then runs TypeScript without emitting files.
 - `npm run format:check` checks Prettier formatting.
@@ -90,12 +91,15 @@ Use a disposable local/test database and run migrations before starting E2E:
 
 ```bash
 E2E_DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/g_focus_e2e" \
-  npm run prisma:migrate:dev -- --name e2e_setup
+  npm run e2e:migrate
 
 E2E_DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/g_focus_e2e" \
   npm run e2e
 ```
 
-`E2E_DATABASE_URL` is preferred. A `DATABASE_URL` containing a clear local/test
-marker such as `localhost`, `127.0.0.1`, `test`, or `e2e` is also accepted for
+`npm run e2e:migrate` passes `E2E_DATABASE_URL` to Prisma as `DATABASE_URL`
+internally because Prisma migrations read `DATABASE_URL` from
+`prisma.config.ts`. `E2E_DATABASE_URL` is required for migrations and preferred
+for browser tests. A `DATABASE_URL` containing a clear local/test marker such as
+`localhost`, `127.0.0.1`, `test`, or `e2e` is also accepted by Playwright for
 local runs.

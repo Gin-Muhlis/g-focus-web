@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "e2e:migrate": "node scripts/migrate-e2e-database.mjs",
     "e2e": "playwright test",
     "pretypecheck": "prisma generate",
     "typecheck": "tsc --noEmit",
